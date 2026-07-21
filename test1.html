@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kamau Auto Spares | Full Role-Based System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, 'Poppins', sans-serif;
+            background: #0f172a;
+            min-height: 100vh;
+            color: #f8fafc; 
+        }
+
+        /* HOMEPAGE */
+        .home-wrapper {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #0c1122 0%, #0a0f1a 100%);
+            padding: 1.5rem;
+        }
+
+        .home-card {
+            max-width: 580px;
+            width: 100%;
+            background: rgba(18, 25, 45, 0.85);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .brand-icon { font-size: 4.2rem; margin-bottom: 0.75rem; }
+        .home-title {
+            font-size: 2.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f59e0b, #ffb347);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .login-prompt-btn {
+            background: #1e3a8a;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 1.5rem;
+            transition: 0.2s;
+        }
+        .login-prompt-btn:hover { background: #2563eb; transform: scale(1.02); }
+
+        /* LOGIN OVERLAY */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.98);
+            backdrop-filter: blur(16px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-card {
+            background: #0f172ad9;
+            border: 1px solid #f59e0b60;
+            border-radius: 42px;
+            width: 90%;
+            max-width: 560px;
+            padding: 1.8rem 2rem;
+            backdrop-filter: blur(8px);
+        }
+        .login-card h2 { color: #f59e0b; text-align: center; margin-bottom: 8px; }
+        .role-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0 28px 0;
+        }
+        .role-btn {
+            background: #0f172a;
+            border: 2px solid #1e293b;
+            border-radius: 32px;
+            padding: 18px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: bold;
+        }
+        .role-btn:hover { transform: translateY(-3px); background: #1e293b; }
+        .role-btn.selected {
+            background: #1e3a8a;
+            border-color: #f59e0b;
+            box-shadow: 0 0 18px rgba(245,158,11,0.6);
+        }
+        .role-icon { font-size: 2.2rem; display: block; margin-bottom: 8px; }
+        .role-name { font-size: 1rem; letter-spacing: 1px; color: #f1f5f9; }
+        .input-group { margin-bottom: 18px; }
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background: #040b1a;
+            border: 1px solid #2d3a5e;
+            border-radius: 24px;
+            color: #f8fafc;
+            outline: none;
+        }
+        .login-btn {
+            width: 100%;
+            background: #1e3a8a;
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+        .login-btn:hover { background: #2563eb; }
+        .login-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .error-msg { background: rgba(239,68,68,0.15); color: #ef4444; padding: 10px; border-radius: 20px; text-align: center; margin-top: 14px; }
+        .success-msg { background: rgba(16,185,129,0.15); color: #10b981; padding: 10px; border-radius: 20px; text-align: center; margin-top: 14px; }
+        .demo-hint { margin-top: 20px; font-size: 0.7rem; text-align: center; color: #5b6e8c; border-top: 1px solid #1e293b; padding-top: 15px; }
+        .close-login {
+            position: absolute;
+            top: 25px;
+            right: 35px;
+            background: #1e293b;
+            border: none;
+            font-size: 24px;
+            color: #94a3b8;
+            cursor: pointer;
+            border-radius: 50px;
+            width: 42px;
+            height: 42px;
+        }
+        .close-login:hover { background: #334155; }
+
+        /* MAIN APP TERMINAL */
+        .app-container {
+            visibility: hidden;
+            opacity: 0;
+            transition: 0.2s;
+            width: 100%;
+            background: #0f172a;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        .app-container.active { visibility: visible; opacity: 1; }
+        header {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 12px 20px;
+            border-radius: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        header h1 { font-size: 1.1rem; color: #f59e0b; }
+        .logo-link{
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+            display: inline-block;
+        }
+        .user-badge {
+            background: #475569;
+            padding: 5px 16px;
+            border-radius: 40px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        .role-tag { background: #0f172a; padding: 3px 14px; border-radius: 40px; color: #f59e0b; font-weight: bold; }
+        .logout-btn { background: none; border: 1px solid #ef4444; color: #ef4444; padding: 4px 14px; border-radius: 40px; cursor: pointer; }
+        .logout-btn:hover { background: #ef4444; color: white; }
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            background: #1e293b;
+            padding: 6px;
+            border-radius: 60px;
+            width: fit-content;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            color: #94a3b8;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .tab-btn.active { background: #1e3a8a; color: white; }
+        .tab-btn:hover:not(.active) { background: #334155; }
+        .page-section { display: none; }
+        .page-section.active-page { display: block; }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: #1e293b;
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+        .card h3 {
+            color: #f59e0b;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #334155;
+            padding-bottom: 8px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 8px;
+            background: #0f172a;
+            border-radius: 16px;
+        }
+        .stats-label { font-weight: bold; color: #94a3b8; }
+        .stats-value { color: #f59e0b; font-weight: bold; font-size: 1.1rem; }
+        .activity-item {
+            padding: 8px;
+            border-bottom: 1px solid #334155;
+            font-size: 0.75rem;
+            color: #cbd5e1;
+        }
+        .alert-item {
+            padding: 10px;
+            margin: 6px 0;
+            background: rgba(239,68,68,0.15);
+            border-left: 3px solid #ef4444;
+            border-radius: 8px;
+            font-size: 0.8rem;
+        }
+        .dash-btn {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 40px;
+            padding: 10px 18px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #f8fafc;
+            cursor: pointer;
+            margin: 5px;
+            transition: 0.2s;
+        }
+        .dash-btn:hover { background: #1e3a8a; border-color: #f59e0b; }
+        .btn-sm {
+            background: #1e3a8a;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.7rem;
+        }
+        .btn-sm:hover { background: #2563eb; }
+        .danger-btn { border-color: #ef4444; color: #ef4444; }
+        .danger-btn:hover { background: #ef4444; color: white; }
+        .success-btn { border-color: #10b981; color: #10b981; }
+        .success-btn:hover { background: #10b981; color: white; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #334155; }
+        th { color: #f59e0b; }
+        input, select {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 8px;
+            color: #f8fafc;
+            width: 100%;
+        }
+        input:focus, select:focus { outline: 2px solid #f59e0b; }
+        .inline-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pending-task {
+            background: #0f172a;
+            padding: 12px;
+            border-radius: 16px;
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .location-item {
+            padding: 6px 0;
+            border-bottom: 1px dashed #334155;
+            font-size: 0.8rem;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #334155;
+            border-top: 3px solid #f59e0b;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #1e293b;
+            border: 1px solid #f59e0b;
+            border-radius: 12px;
+            padding: 16px 24px;
+            color: #f8fafc;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            max-width: 400px;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .toast.success { border-color: #10b981; }
+        .toast.error { border-color: #ef4444; }
+
+        /* filter row */
+        .filter-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        .filter-row input, .filter-row select {
+            width: auto;
+            flex: 1 1 160px;
+        }
+        .filter-row .dash-btn {
+            margin: 0;
+            flex: 0 0 auto;
+        }
+        .filter-row label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* report pagination */
+        .report-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .report-list ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .report-list ul li {
+            padding: 6px 10px;
+            border-bottom: 1px solid #334155;
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+        }
+        .report-list ul li .stock-badge {
+            font-weight: bold;
+        }
+        .report-list ul li .stock-badge.reorder {
+            color: #ef4444;
+        }
+        .report-list ul li .stock-badge.ok {
+            color: #10b981;
+        }
+        .see-more-btn {
+            display: block;
+            width: 100%;
+            text-align: center;
+            margin-top: 12px;
+            padding: 8px;
+            background: #1e3a8a;
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .see-more-btn:hover { background: #2563eb; }
+        .see-more-btn.showing-all { background: #334155; }
+        .see-more-btn.showing-all:hover { background: #475569; }
+
+        /* shelf occupied notification */
+        .shelf-occupied {
+            background: rgba(239,68,68,0.2);
+            border: 2px solid #ef4444;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #ef4444;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin: 5px 0;
+            animation: pulse 1s ease-in-out 2;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* stock view container with close button */
+        .stock-view-container {
+            background: #0f172a;
+            border-radius: 16px;
+            padding: 12px;
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .stock-view-container .close-view-btn {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 6px;
+            background: #ef4444;
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .stock-view-container .close-view-btn:hover {
+            background: #dc2626;
+        }
+        .stock-view-item {
+            padding: 4px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 0.8rem;
+        }
+        .stock-view-item:last-child {
+            border-bottom: none;
+        }
+
+        /* location map container */
+        .location-map-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .location-map-container .see-more-btn {
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- HOMEPAGE -->
+<div id="homepageContainer" class="home-wrapper">
+    <div class="home-card">
+        <div class="brand-icon">🔧🚗</div>
+        <div class="home-title">KAMAU AUTO SPARES</div>
+        <div class="home-sub" style="margin: 10px 0;">Automotive spares inventory Management System</div>
+        <button id="showLoginFromHomeBtn" class="login-prompt-btn">🔐 LOGIN →</button>
+    </div>
+</div>
+
+<!-- LOGIN OVERLAY WITH ROLE BUTTONS -->
+<div id="loginOverlay" class="login-overlay">
+    <button id="closeLoginBtn" class="close-login">✖</button>
+    <div class="login-card">
+        <h2>🔧 KAMAU AUTO SPARES</h2>
+        <p style="text-align:center; font-size:0.8rem; color:#94a3b8;">Select your role and login</p>
+        <div class="role-buttons" id="roleButtonsContainer">
+            <div class="role-btn selected" data-role="Admin"><div class="role-icon">👑</div><div class="role-name">ADMINISTRATOR</div></div>
+            <div class="role-btn" data-role="Branch Manager"><div class="role-icon">📋</div><div class="role-name">BRANCH MANAGER</div></div>
+            <div class="role-btn" data-role="Sales Staff"><div class="role-icon">💰</div><div class="role-name">SALES STAFF</div></div>
+            <div class="role-btn" data-role="Inventory Clerk"><div class="role-icon">📦</div><div class="role-name">INVENTORY CLERK</div></div>
+        </div>
+        <div class="input-group"><label>👤 USERNAME</label><input type="text" id="loginUsername" placeholder="Enter username" autocomplete="off"></div>
+        <div class="input-group"><label>🔒 PASSWORD</label><input type="password" id="loginPassword" placeholder="Enter password"></div>
+        <button class="login-btn" id="doLoginBtn">▶ LOGIN TO TERMINAL</button>
+        <div id="loginErrorMsg"></div>
+    </div>
+</div>
+
+<!-- MAIN APP TERMINAL -->
+<div id="appContainer" class="app-container">
+    <header>
+        <a href="#" id="logoDashboardLink" class="logo-link">
+            <h1>🏪 KAMAU AUTO SPARES — KNY ROAD ENTREPISE</h1>
+        </a>
+        <div class="user-badge">
+            <span id="sessionUserDisplay">User</span>
+            <span id="roleBadge" class="role-tag">Role</span>
+            <button id="logoutBtn" class="logout-btn">LOGOUT</button>
+        </div>
+    </header>
+    <div class="nav-tabs">
+        <button class="tab-btn active" data-page="dashboard">📊 DASHBOARD</button>
+        <button class="tab-btn" data-page="inventory">📦 INVENTORY</button>
+        <button class="tab-btn" data-page="sales">💰 SALES</button>
+        <button class="tab-btn" data-page="reports">📊 REPORTS</button>
+        <button class="tab-btn" data-page="adminPanel" id="adminTabBtn" style="display:none;">⚙️ ADMIN</button>
+    </div>
+
+    <div id="dashboardPage" class="page-section active-page"><div id="roleDashboardContent"></div></div>
+    <div id="inventoryPage" class="page-section">
+        <div class="card">
+            <h3>📦 Inventory Management</h3>
+            <div class="filter-row">
+                <input type="text" id="invFilterName" placeholder="Filter by name...">
+                <input type="number" id="invFilterPriceMin" placeholder="Min price">
+                <input type="number" id="invFilterPriceMax" placeholder="Max price">
+                <button class="dash-btn" id="invFilterApplyBtn">🔍 Apply Filter</button>
+                <button class="dash-btn" id="invFilterResetBtn">↺ Reset</button>
+            </div>
+            <div id="shelfNotificationArea"></div>
+            <table id="inventoryTable">
+                <thead><tr><th>SKU</th><th>Part Name</th><th>Stock</th><th>Location</th><th>Price(KES)</th><th>Compatibility</th></tr></thead>
+                <tbody id="invTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="salesPage" class="page-section"><div class="dashboard-grid"><div class="card"><h3>🛒 Process Sale</h3><input type="text" id="saleSkuSearch" placeholder="Search parts"><div id="searchResults" style="max-height:200px; overflow:auto;"></div><div id="cartItems"></div><button id="completeSaleBtn" class="dash-btn">✅ Complete Sale & Invoice</button></div><div class="card"><h3>📋 Today's Sales</h3><table><thead><tr><th>Time</th><th>Item</th><th>Total</th></tr></thead><tbody id="salesListBody"></tbody></table></div></div></div>
+    <div id="reportsPage" class="page-section">
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>📈 Stock & Reorder Report</h3>
+                <div id="stockReportContainer">
+                    <div class="report-list" id="stockReportList"></div>
+                    <button class="see-more-btn" id="stockReportSeeMore">👇 See More</button>
+                </div>
+            </div>
+            <div class="card"><h3>🏆 Top Moving Parts</h3><div id="topParts"></div></div>
+            <div class="card"><h3>📊 Fast/Slow Moving Stock</h3><div id="fastSlowReport"></div></div>
+        </div>
+    </div>
+    
+    <!-- ADMIN PANEL -->
+    <div id="adminPanelPage" class="page-section">
+        <div class="dashboard-grid">
+            <div class="card system-overview"><h3>📊 SYSTEM OVERVIEW</h3><div class="stats-row"><span class="stats-label">👥 Users:</span><span class="stats-value" id="overviewUsers">0</span></div><div class="stats-row"><span class="stats-label">🏭 Suppliers:</span><span class="stats-value" id="overviewSuppliers">0</span></div><div class="stats-row"><span class="stats-label">📦 SKUs:</span><span class="stats-value" id="overviewSKUs">0</span></div><div class="stats-row"><span class="stats-label">💰 Today's Revenue:</span><span class="stats-value" id="overviewRevenue">KES 0</span></div></div>
+            <div class="card"><h3>🕒 RECENT ACTIVITY LOGS</h3><div id="recentActivityLogsList" style="max-height: 200px; overflow-y: auto;"></div></div>
+            <div class="card"><h3>👥 User Management</h3><div id="userListContainer"></div><button id="openCreateUserBtn" class="dash-btn">➕ Create User</button></div>
+            <div class="card"><h3>🔐 Role Assignment</h3><div id="roleAssignmentArea"></div></div>
+            <div class="card"><h3>⚙️ System Settings</h3><input type="text" id="sysCompany" placeholder="Company Name" value="Kamau Auto Spares"><input type="number" id="sysTax" placeholder="Tax %" value="16"><button id="saveSettingsBtn" class="dash-btn">Save Settings</button></div>
+            <div class="card"><h3>📊 Full Reports</h3><button id="fullSalesReportBtn" class="dash-btn">Sales Report</button><button id="fullInventoryReportBtn" class="dash-btn">Inventory Valuation</button><button id="fullEmployeeReportBtn" class="dash-btn">Employee Activity</button><div id="reportPreviewAdmin"></div></div>
+            <div class="card"><h3>👀 Monitor Activities</h3><div id="activityLogViewer" style="max-height:150px; overflow:auto;"></div><button id="clearActivitiesBtn" class="dash-btn danger-btn">Clear Logs</button></div>
+            <div class="card"><h3>✅ Approve Adjustments</h3><div id="pendingAdjustmentsList"></div><button id="approveAdjustmentsBtn" class="dash-btn">Approve Selected</button></div>
+            <div class="card"><h3>💾 Backup & Recovery</h3><button id="createBackupBtn" class="dash-btn">Create Backup</button><button id="restoreBackupBtn" class="dash-btn">Restore Backup</button><div id="backupStatus"></div></div>
+            <div class="card"><h3>🏭 Supplier Management</h3><div id="supplierListContainer"></div><button id="addSupplierBtn" class="dash-btn">+ Add Supplier</button></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ----- GLOBAL STATE -----
+    let currentUser = null;
+    let selectedRoleForLogin = "Admin";
+    let suppliersData = [];
+    let salesData = [];
+    let usersData = [];
+    let activityLogs = [];
+    let pendingAdjustments = [];
+    let systemSettings = { companyName: "Kamau Auto Spares", taxRate: 16 };
+    let backupSnapshot = null;
+    let cart = [];
+    let inventoryData = [];
+    let stockReportShowAll = false;
+    let locationMapShowAll = false;
+
+    // ----- DOM REFERENCES -----
+    const homepageDiv = document.getElementById('homepageContainer');
+    const loginOverlay = document.getElementById('loginOverlay');
+    const appContainer = document.getElementById('appContainer');
+    const loginUsername = document.getElementById('loginUsername');
+    const loginPassword = document.getElementById('loginPassword');
+    const doLoginBtn = document.getElementById('doLoginBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const sessionUserDisplay = document.getElementById('sessionUserDisplay');
+    const roleBadge = document.getElementById('roleBadge');
+    const showLoginBtn = document.getElementById('showLoginFromHomeBtn');
+    const closeLoginBtn = document.getElementById('closeLoginBtn');
+    const loginErrorMsg = document.getElementById('loginErrorMsg');
+
+    // Filter elements
+    const invFilterName = document.getElementById('invFilterName');
+    const invFilterPriceMin = document.getElementById('invFilterPriceMin');
+    const invFilterPriceMax = document.getElementById('invFilterPriceMax');
+    const invFilterApplyBtn = document.getElementById('invFilterApplyBtn');
+    const invFilterResetBtn = document.getElementById('invFilterResetBtn');
+
+    // ----- TOAST NOTIFICATION -----
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.3s';
+            setTimeout(() => toast.remove(), 300);
+        }, 4000);
+    }
+
+    // ----- DATABASE FUNCTIONS (PHP Backend) -----
+
+function loadInventoryFromDB() {
+    return new Promise((resolve, reject) => {
+        fetch('get_inventory.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    inventoryData = data.data;
+                    resolve(data.data);
+                } else {
+                    reject(data.message || 'Failed to load inventory');
+                }
+            })
+            .catch(error => reject(error));
+    });
+}
+
+function loadUsersFromDB() {
+    return new Promise((resolve, reject) => {
+        fetch('get_user.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    usersData = data.data;
+                    resolve(data.data);
+                } else {
+                    reject(data.message || 'Failed to load users');
+                }
+            })
+            .catch(error => reject(error));
+    });
+}
+
+function loadSalesFromDB() {
+    return new Promise((resolve, reject) => {
+        fetch('get_sales.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    salesData = data.data;
+                    resolve(data.data);
+                } else {
+                    reject(data.message || 'Failed to load sales');
+                }
+            })
+            .catch(error => reject(error));
+    });
+}
+
+function loadSuppliersFromDB() {
+    return new Promise((resolve, reject) => {
+        fetch('get_supplier.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    suppliersData = data.data;
+                    resolve(data.data);
+                } else {
+                    reject(data.message || 'Failed to load suppliers');
+                }
+            })
+            .catch(error => reject(error));
+    });
+}
+
+function addLogDB(action, user) {
+    fetch('activitylog.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `action=${encodeURIComponent(action)}&user=${encodeURIComponent(user)}`
+    }).catch(error => console.error('Log error:', error));
+
+    // Also add to local logs
+    const logEntry = {
+        time: new Date().toLocaleString(),
+        action,
+        user: user || 'System'
+    };
+
+    activityLogs.unshift(logEntry);
+
+    if (activityLogs.length > 50) {
+        activityLogs.pop();
+    }
+}
+
+// ----- LOAD ALL DATA FROM DATABASE -----
+
+async function loadAllData() {
+    try {
+        await Promise.all([
+            loadInventoryFromDB(),
+            loadUsersFromDB(),
+            loadSalesFromDB(),
+            loadSuppliersFromDB()
+        ]);
+
+        fetch('get_logs.php')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    activityLogs = data.data;
+                }
+            })
+            .catch(() => {
+                activityLogs = activityLogs.length > 0
+                    ? activityLogs
+                    : [{
+                        time: new Date().toLocaleString(),
+                        action: 'System initialized',
+                        user: 'System'
+                    }];
+            });
+
+        return true;
+
+    } catch (error) {
+        console.error('Error loading data:', error);
+        showToast('Error loading data. Using fallback data.', 'error');
+        return false;
+    }
+}
+
+    // ----- LOGIN FUNCTION -----
+    async function performLogin() {
+        const username = loginUsername.value.trim();
+        const password = loginPassword.value.trim();
+        
+        if (!username || !password) {
+            loginErrorMsg.innerHTML = '<div class="error-msg">⚠️ Please enter username and password</div>';
+            return;
+        }
+
+        doLoginBtn.disabled = true;
+        doLoginBtn.innerHTML = '⏳ Logging in...';
+        loginErrorMsg.innerHTML = '';
+
+        try {
+            const response = await fetch('login.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&role=${encodeURIComponent(selectedRoleForLogin)}`
+            });
+
+            const result = await response.json();
+            
+            if (result.success) {
+                currentUser = result.user;
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+
+                await loadAllData();
+                
+                homepageDiv.style.display = 'none';
+                loginOverlay.style.display = 'none';
+                appContainer.classList.add('active');
+                
+                sessionUserDisplay.textContent = currentUser.name || currentUser.username;
+                roleBadge.textContent = currentUser.role;
+                
+                document.getElementById('roleDashboardContent').innerHTML = '';
+                renderRoleInterface();
+                
+                if (currentUser.role === 'Admin') {
+                    document.getElementById('adminTabBtn').style.display = 'inline-block';
+                    renderFullAdminControls();
+                } else {
+                    document.getElementById('adminTabBtn').style.display = 'none';
+                }
+                
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelector('.tab-btn[data-page="dashboard"]').classList.add('active');
+                document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-page'));
+                document.getElementById('dashboardPage').classList.add('active-page');
+                
+                refreshInventoryTable();
+                refreshSalesList();
+                renderStockReport();
+                renderTopParts();
+                renderFastSlowReport();
+                
+                addLogDB('Logged in successfully', currentUser.username);
+                showToast(`Welcome ${currentUser.name || currentUser.username}!`, 'success');
+                
+            } else {
+                loginErrorMsg.innerHTML = `<div class="error-msg">❌ ${result.message || 'Invalid credentials'}</div>`;
+                showToast('Login failed: ' + (result.message || 'Invalid credentials'), 'error');
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            loginErrorMsg.innerHTML = `<div class="error-msg">❌ Connection error: ${error.message}</div>`;
+            showToast('Connection error. Please check if the server is running.', 'error');
+        } finally {
+            doLoginBtn.disabled = false;
+            doLoginBtn.innerHTML = '▶ LOGIN TO TERMINAL';
+        }
+    }
+
+    // ----- HELPER FUNCTIONS -----
+    function getTodayRevenue() { 
+        const today = new Date().toDateString();
+        return salesData
+            .filter(sale => new Date(sale.time).toDateString() === today)
+            .reduce((sum, sale) => sum + (sale.total || 0), 0);
+    }
+
+    // ----- UI UPDATE FUNCTIONS -----
+    function updateSystemOverviewAndLogs() {
+        const usersCount = document.getElementById('overviewUsers');
+        const suppliersCount = document.getElementById('overviewSuppliers');
+        const skusCount = document.getElementById('overviewSKUs');
+        const revenueSpan = document.getElementById('overviewRevenue');
+        const recentLogsDiv = document.getElementById('recentActivityLogsList');
+        
+        if(usersCount) usersCount.innerText = usersData.length;
+        if(suppliersCount) suppliersCount.innerText = suppliersData.length;
+        if(skusCount) skusCount.innerText = inventoryData.length;
+        if(revenueSpan) revenueSpan.innerText = `KES ${getTodayRevenue()}`;
+        
+        if(recentLogsDiv) { 
+            recentLogsDiv.innerHTML = activityLogs.slice(0, 8).map(log => 
+                `<div class="activity-item">🕒 ${log.time} | <strong>${log.user}</strong>: ${log.action}</div>`
+            ).join('') || '<div class="activity-item">No recent activities</div>'; 
+        }
+    }
+
+    // ----- RENDER LOCATION MAP (with See More) -----
+    function renderLocationMap(containerId) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+
+        const totalItems = inventoryData.length;
+        const showCount = locationMapShowAll ? totalItems : Math.min(10, totalItems);
+        const visibleItems = inventoryData.slice(0, showCount);
+
+        let html = '<div class="location-map-container">';
+        visibleItems.forEach(item => {
+            html += `<div class="location-item">📌 ${item.name}: <strong>${item.location || 'Not assigned'}</strong></div>`;
+        });
+        
+        // Add See More button if more than 10 items
+        if (totalItems > 10) {
+            html += `<button class="see-more-btn" id="locationMapSeeMoreBtn">${locationMapShowAll ? '⬆ Show Less' : `👇 See More (${totalItems - 10} more)`}</button>`;
+        }
+        html += '</div>';
+
+        container.innerHTML = html;
+
+        // Add event listener for the See More button
+        const seeMoreBtn = document.getElementById('locationMapSeeMoreBtn');
+        if (seeMoreBtn) {
+            seeMoreBtn.addEventListener('click', function() {
+                locationMapShowAll = !locationMapShowAll;
+                renderLocationMap(containerId);
+                if (locationMapShowAll) {
+                    showToast('Showing all locations', 'info');
+                } else {
+                    showToast('Showing first 10 locations', 'info');
+                }
+            });
+        }
+    }
+
+    // ----- ROLE-SPECIFIC INTERFACES -----
+    function renderRoleInterface() {
+        if (!currentUser) return;
+        
+        const dashboardDiv = document.getElementById('roleDashboardContent');
+        if (!dashboardDiv) return;
+        
+        dashboardDiv.innerHTML = '';
+        
+        if (currentUser.role === 'Branch Manager') {
+            renderManagerDashboard(dashboardDiv);
+        } 
+        else if (currentUser.role === 'Sales Staff') {
+            renderSalesDashboard(dashboardDiv);
+        } 
+        else if (currentUser.role === 'Inventory Clerk') {
+            renderInventoryDashboard(dashboardDiv);
+        } 
+        else if (currentUser.role === 'Admin') {
+            renderAdminDashboard(dashboardDiv);
+        }
+        
+        refreshInventoryTable();
+        refreshSalesList();
+        renderStockReport();
+        renderTopParts();
+        renderFastSlowReport();
+    }
+
+    function renderManagerDashboard(container) {
+        const lowStockItems = inventoryData.filter(i => i.stock <= i.reorderLevel);
+        container.innerHTML = `
+            <div class="dashboard-grid">
+                <div class="card"><h3>⚠️ CRITICAL ALERTS</h3><div id="managerCriticalAlerts">${lowStockItems.map(i => `<div class="alert-item">🔴 ${i.name}: Only ${i.stock} left (Reorder at ${i.reorderLevel})</div>`).join('') || '<div class="alert-item">✅ No critical alerts</div>'}</div></div>
+                <div class="card"><h3>📈 DAILY PERFORMANCE</h3><div class="stats-row"><span class="stats-label">Today's Revenue:</span><span class="stats-value">KES ${getTodayRevenue()}</span></div><div class="stats-row"><span class="stats-label">Transactions:</span><span class="stats-value">${salesData.length}</span></div><button class="dash-btn" id="mgrRefreshStats">Refresh Stats</button></div>
+                <div class="card"><h3>📊 Monitor Inventory Levels</h3><button class="dash-btn" id="mgrMonitorInv">View Stock Levels</button><div id="mgrStockView"></div></div>
+                <div class="card"><h3>✅ Approve Purchase Orders</h3><button class="dash-btn" id="mgrApprovePO">Approve Pending Orders</button></div>
+                <div class="card"><h3>💰 Manage Pricing Updates</h3><button class="dash-btn" id="mgrPricing">Update Prices</button></div>
+                <div class="card"><h3>📈 View Sales Reports</h3><button class="dash-btn" id="mgrSalesReport">Sales Summary</button></div>
+                <div class="card"><h3>🏭 Manage Suppliers</h3><button class="dash-btn" id="mgrSuppliers">Supplier List</button></div>
+                <div class="card"><h3>📦 Track Fast/Slow Moving Stock</h3><button class="dash-btn" id="mgrFastSlow">View Analysis</button><div id="mgrFastSlowResult"></div></div>
+                <div class="card"><h3>👥 Supervise Employees</h3><button class="dash-btn" id="mgrEmployees">Employee Activity</button></div>
+            </div>`;
+        
+        document.getElementById('mgrRefreshStats')?.addEventListener('click', () => { 
+            const alertsDiv = document.getElementById('managerCriticalAlerts'); 
+            if(alertsDiv) { 
+                const low = inventoryData.filter(i => i.stock <= i.reorderLevel); 
+                alertsDiv.innerHTML = low.map(i => `<div class="alert-item">🔴 ${i.name}: Only ${i.stock} left</div>`).join('') || '<div class="alert-item">✅ No critical alerts</div>'; 
+            } 
+            showToast('Stats refreshed', 'success');
+        });
+        
+        document.getElementById('mgrMonitorInv')?.addEventListener('click', function() {
+            const stockViewDiv = document.getElementById('mgrStockView');
+            if (stockViewDiv) {
+                let stockHtml = '<div class="stock-view-container">';
+                stockHtml += '<div style="margin-bottom:8px; font-weight:bold; color:#f59e0b;">📊 Current Stock Levels</div>';
+                inventoryData.forEach(item => {
+                    const reorderStatus = item.stock <= (item.reorderLevel || 5) ? '🔴' : '✅';
+                    stockHtml += `<div class="stock-view-item">${item.name}: ${item.stock} units ${reorderStatus} (Min: ${item.reorderLevel || 5})</div>`;
+                });
+                stockHtml += `<button class="close-view-btn" id="closeStockViewBtn">✖ Close</button>`;
+                stockHtml += '</div>';
+                stockViewDiv.innerHTML = stockHtml;
+                
+                const closeBtn = document.getElementById('closeStockViewBtn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', function() {
+                        stockViewDiv.innerHTML = '';
+                        showToast('Stock view closed', 'info');
+                    });
+                }
+            }
+        });
+        
+        document.getElementById('mgrApprovePO')?.addEventListener('click', () => {
+            showToast('✅ Purchase Order #PO-101 approved.', 'success');
+            addLogDB('Approved PO-101', currentUser.username);
+        });
+        
+        document.getElementById('mgrPricing')?.addEventListener('click', () => { 
+            let sku = prompt("SKU:"); 
+            let newPrice = prompt("New Price KES:"); 
+            let item = inventoryData.find(i=>i.sku===sku); 
+            if(item){ 
+                item.price = parseInt(newPrice);
+                fetch('update_inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sku=${encodeURIComponent(sku)}&price=${encodeURIComponent(newPrice)}`
+                }).catch(error => console.error('Price update error:', error));
+                addLogDB(`Price updated for ${item.name}`, currentUser.username); 
+                showToast(`Price updated for ${item.name}`, 'success');
+                refreshInventoryTable(); 
+            } 
+        });
+        
+        document.getElementById('mgrSalesReport')?.addEventListener('click', () => showToast(`Total Sales: KES ${getTodayRevenue()}`, 'info'));
+        
+        document.getElementById('mgrSuppliers')?.addEventListener('click', () => alert(suppliersData.map(s=>`${s.name} - ${s.contact}`).join('\n')));
+        
+        document.getElementById('mgrFastSlow')?.addEventListener('click', () => { 
+            const fast = [...inventoryData].sort((a,b)=>b.soldCount-a.soldCount).slice(0,2); 
+            const slow = [...inventoryData].sort((a,b)=>a.soldCount-b.soldCount).slice(0,2); 
+            document.getElementById('mgrFastSlowResult').innerHTML = `<strong>Fast-moving:</strong> ${fast.map(f=>f.name).join(', ')}<br><strong>Slow-moving:</strong> ${slow.map(s=>s.name).join(', ')}`; 
+        });
+        
+        document.getElementById('mgrEmployees')?.addEventListener('click', () => alert(activityLogs.slice(0,10).map(l=>`${l.user}: ${l.action}`).join('\n')));
+    }
+
+    function renderSalesDashboard(container) {
+        const userSalesTotal = salesData.filter(s => s.staff === currentUser.name).reduce((sum, s) => sum + s.total, 0);
+        container.innerHTML = `
+            <div class="dashboard-grid">
+                <div class="card"><h3>🎯 TODAY'S PERFORMANCE</h3><div class="stats-row"><span class="stats-label">Your Sales Today:</span><span class="stats-value">KES ${userSalesTotal}</span></div><div class="stats-row"><span class="stats-label">Team Total:</span><span class="stats-value">KES ${getTodayRevenue()}</span></div><button class="dash-btn" id="salesRefreshPerformance">Refresh</button></div>
+                <div class="card"><h3>📍 QUICK LOCATION MAP</h3><div id="quickLocationMap"></div></div>
+                <div class="card"><h3>🔍 Search Spare Parts</h3><input type="text" id="salesSearchBox" placeholder="Search..."><div id="salesSearchResult"></div></div>
+                <div class="card"><h3>✅ Check Stock Availability</h3><button class="dash-btn" id="salesCheckStock">Check Stock</button></div>
+                <div class="card"><h3>📍 View Product Locations</h3><button class="dash-btn" id="salesViewLocations">View Locations</button></div>
+                <div class="card"><h3>🔧 View Product Compatibility</h3><button class="dash-btn" id="salesCompatibility">Compatibility Guide</button></div>
+                <div class="card"><h3>🛒 Process Customer Orders</h3><button class="dash-btn" id="salesProcessOrder">Go to Sales Terminal</button></div>
+                <div class="card"><h3>📄 Generate Invoices</h3><button class="dash-btn" id="salesInvoice">Generate Sample Invoice</button></div>
+                <div class="card"><h3>🔄 Suggest Alternative Products</h3><button class="dash-btn" id="salesAlternative">Suggest Alternative</button></div>
+            </div>`;
+        
+        // Render the location map with See More functionality
+        renderLocationMap('quickLocationMap');
+        
+        document.getElementById('salesRefreshPerformance')?.addEventListener('click', () => { 
+            const newTotal = salesData.filter(s => s.staff === currentUser.name).reduce((sum, s) => sum + s.total, 0); 
+            showToast(`Your Sales: KES ${newTotal}`, 'info');
+        });
+        
+        document.getElementById('salesSearchBox')?.addEventListener('input', (e) => { 
+            let q = e.target.value.toLowerCase(); 
+            let res = inventoryData.filter(i=>i.name.toLowerCase().includes(q)||i.sku.toLowerCase().includes(q)); 
+            document.getElementById('salesSearchResult').innerHTML = res.map(i=>`${i.name} | Stock:${i.stock} | KES ${i.price}`).join('<br>') || "No results"; 
+        });
+        
+        document.getElementById('salesCheckStock')?.addEventListener('click', () => alert(inventoryData.map(i=>`${i.name}: ${i.stock} units`).join('\n')));
+        document.getElementById('salesViewLocations')?.addEventListener('click', () => alert(inventoryData.map(i=>`${i.name} → ${i.location}`).join('\n')));
+        document.getElementById('salesCompatibility')?.addEventListener('click', () => alert(inventoryData.map(i=>`${i.name}: ${i.compatibility}`).join('\n')));
+        document.getElementById('salesProcessOrder')?.addEventListener('click', () => document.querySelector('.tab-btn[data-page="sales"]').click());
+        document.getElementById('salesInvoice')?.addEventListener('click', () => alert("📄 Invoice #INV-001\nCustomer: Walk-in\nTotal: KES 0.00 (Sample)"));
+        document.getElementById('salesAlternative')?.addEventListener('click', () => showToast("🔄 Alternative for Fuel Pump: Aftermarket Denso (KES 38,500) available.", 'info'));
+    }
+
+    function renderInventoryDashboard(container) {
+        const reorderItems = inventoryData.filter(i => i.stock <= i.reorderLevel);
+        container.innerHTML = `
+            <div class="dashboard-grid">
+                <div class="card"><h3>📥 PENDING TASKS</h3><div class="pending-task"><span>🚚 Receive Shipment</span><button class="btn-sm success-btn" id="quickReceiveBtn">Receive</button></div><div class="pending-task"><span>⚠️ Report Damage</span><button class="btn-sm danger-btn" id="quickDamageBtn">Report</button></div></div>
+                <div class="card"><h3>📋 REORDER RECOMMENDATIONS</h3><div id="inventoryReorderList">${reorderItems.map(i => `<div class="alert-item">📦 ${i.name}: ${i.stock} left (Reorder at ${i.reorderLevel})</div>`).join('') || '<div class="alert-item">✅ All stock levels adequate</div>'}</div><button class="dash-btn" id="refreshReorderBtn">Refresh</button></div>
+                <div class="card"><h3>➕ Add New Spare Parts</h3><button class="dash-btn" id="invAddPart">Add Part</button></div>
+                <div class="card"><h3>📊 Update Stock Quantities</h3><button class="dash-btn" id="invUpdateStockBtn">Update Stock</button></div>
+                <div class="card"><h3>📥 Record Incoming Stock</h3><button class="dash-btn" id="invReceiveStock">Receive Shipment</button></div>
+                <div class="card"><h3>⚠️ Record Damaged/Expired Stock</h3><button class="dash-btn" id="invDamageStock">Record Damage</button></div>
+                <div class="card"><h3>📍 Update Storage Locations</h3><button class="dash-btn" id="invUpdateLocation">Update Location</button></div>
+                <div class="card"><h3>🔢 Conduct Stock Counts</h3><button class="dash-btn" id="invStockCount">Start Stock Count</button></div>
+                <div class="card"><h3>📑 Generate Inventory Reports</h3><button class="dash-btn" id="invGenReport">Generate Report</button></div>
+                <div class="card"><h3>📈 Track Reorder Levels</h3><button class="dash-btn" id="invReorderTrack">View Reorder List</button><div id="invReorderResult"></div></div>
+            </div>`;
+        
+        document.getElementById('quickReceiveBtn')?.addEventListener('click', () => { 
+            let sku = prompt("SKU to receive:"); 
+            let qty = parseInt(prompt("Quantity:")); 
+            let item = inventoryData.find(i=>i.sku===sku); 
+            if(item && qty>0){ 
+                item.stock += qty;
+                fetch('update_inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sku=${encodeURIComponent(sku)}&stock=${encodeURIComponent(item.stock)}`
+                }).catch(error => console.error('Stock update error:', error));
+                addLogDB(`Received ${qty} of ${item.name}`, currentUser.username); 
+                refreshInventoryTable(); 
+                showToast(`Stock updated for ${item.name}`, 'success');
+                const reorderDiv = document.getElementById('inventoryReorderList'); 
+                if(reorderDiv){ 
+                    const reorder = inventoryData.filter(i=>i.stock <= i.reorderLevel); 
+                    reorderDiv.innerHTML = reorder.map(i => `<div class="alert-item">📦 ${i.name}: ${i.stock} left</div>`).join('') || '<div class="alert-item">✅ All stock levels adequate</div>'; 
+                } 
+            } else showToast('Invalid input', 'error'); 
+        });
+        
+        document.getElementById('quickDamageBtn')?.addEventListener('click', () => { 
+            let sku = prompt("SKU for damaged stock:"); 
+            let qty = parseInt(prompt("Damaged qty:")); 
+            let item = inventoryData.find(i=>i.sku===sku); 
+            if(item && qty>0 && item.stock>=qty){ 
+                item.stock -= qty;
+                fetch('update_inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sku=${encodeURIComponent(sku)}&stock=${encodeURIComponent(item.stock)}`
+                }).catch(error => console.error('Stock update error:', error));
+                addLogDB(`Damaged ${qty} ${item.name}`, currentUser.username); 
+                refreshInventoryTable(); 
+                showToast(`Damage recorded for ${item.name}`, 'info');
+                const reorderDiv = document.getElementById('inventoryReorderList'); 
+                if(reorderDiv){ 
+                    const reorder = inventoryData.filter(i=>i.stock <= i.reorderLevel); 
+                    reorderDiv.innerHTML = reorder.map(i => `<div class="alert-item">📦 ${i.name}: ${i.stock} left</div>`).join('') || '<div class="alert-item">✅ All stock levels adequate</div>'; 
+                } 
+            } else showToast('Invalid input', 'error'); 
+        });
+        
+        document.getElementById('refreshReorderBtn')?.addEventListener('click', () => { 
+            const reorder = inventoryData.filter(i=>i.stock <= i.reorderLevel); 
+            const reorderDiv = document.getElementById('inventoryReorderList'); 
+            if(reorderDiv) reorderDiv.innerHTML = reorder.map(i => `<div class="alert-item">📦 ${i.name}: ${i.stock} left (Reorder at ${i.reorderLevel})</div>`).join('') || '<div class="alert-item">✅ All stock levels adequate</div>'; 
+        });
+        
+        document.getElementById('invAddPart')?.addEventListener('click', () => { 
+            let name = prompt("Part name:"); 
+            let sku = prompt("SKU:"); 
+            let price = parseInt(prompt("Price:")); 
+            if(name && sku) { 
+                inventoryData.push({sku, name, stock: 0, location: "New", price, reorderLevel: 5, soldCount: 0, compatibility: "General"});
+                fetch('add_inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sku=${encodeURIComponent(sku)}&name=${encodeURIComponent(name)}&price=${encodeURIComponent(price)}`
+                }).catch(error => console.error('Add inventory error:', error));
+                addLogDB(`Added part ${name}`, currentUser.username); 
+                refreshInventoryTable(); 
+                showToast(`Part ${name} added successfully`, 'success');
+            } 
+        });
+        
+        // Fixed: Make the Update Stock button clickable
+        document.getElementById('invUpdateStockBtn')?.addEventListener('click', function() {
+            refreshInventoryTable();
+            showToast('Stock list refreshed. You can now update quantities directly in the table.', 'info');
+        });
+        
+        document.getElementById('invReceiveStock')?.addEventListener('click', () => { 
+            let sku = prompt("SKU:"); 
+            let qty = parseInt(prompt("Quantity:")); 
+            let item = inventoryData.find(i=>i.sku===sku); 
+            if(item){ 
+                item.stock += qty;
+                fetch('update_inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sku=${encodeURIComponent(sku)}&stock=${encodeURIComponent(item.stock)}`
+                }).catch(error => console.error('Stock update error:', error));
+                addLogDB(`Received ${qty} of ${item.name}`, currentUser.username); 
+                refreshInventoryTable(); 
+                showToast(`Stock updated for ${item.name}`, 'success');
+            } 
+        });
+        
+        document.getElementById('invDamageStock')?.addEventListener('click', () => { 
+            let sku = prompt("SKU:"); 
+            let qty = parseInt(prompt("Damaged qty:")); 
+            let item = inventoryData.find(i=>i.sku===sku); 
+            if(item && item.stock>=qty){ 
+                item.stock -= qty;
+                fetch('update_inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sku=${encodeURIComponent(sku)}&stock=${encodeURIComponent(item.stock)}`
+                }).catch(error => console.error('Stock update error:', error));
+                addLogDB(`Damaged ${qty} ${item.name}`, currentUser.username); 
+                refreshInventoryTable(); 
+                showToast(`Damage recorded for ${item.name}`, 'info');
+            } 
+        });
+        
+        document.getElementById('invUpdateLocation')?.addEventListener('click', () => { 
+            let sku = prompt("SKU:"); 
+            let loc = prompt("New Location:"); 
+            let item = inventoryData.find(i=>i.sku===sku); 
+            if(item){ 
+                item.location = loc;
+                fetch('update_inventory.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `sku=${encodeURIComponent(sku)}&location=${encodeURIComponent(loc)}`
+                }).catch(error => console.error('Location update error:', error));
+                refreshInventoryTable(); 
+                showToast(`Location updated for ${item.name}`, 'success');
+            } 
+        });
+        
+        document.getElementById('invStockCount')?.addEventListener('click', () => showToast('Stock count initiated. Physical verification required.', 'info'));
+        
+        document.getElementById('invGenReport')?.addEventListener('click', () => alert(inventoryData.map(i=>`${i.name}: ${i.stock} units @ KES ${i.price}`).join('\n')));
+        
+        document.getElementById('invReorderTrack')?.addEventListener('click', () => { 
+            let reorder = inventoryData.filter(i=>i.stock <= i.reorderLevel); 
+            document.getElementById('invReorderResult').innerHTML = reorder.map(i=>`⚠️ ${i.name}: ${i.stock} left (Reorder at ${i.reorderLevel})`).join('<br>') || "All stock levels OK"; 
+        });
+    }
+
+    function renderAdminDashboard(container) {
+        container.innerHTML = `<div class="card"><h3>👑 Admin Super Dashboard</h3><p>Full control active. Use ADMIN panel for user/role/supplier management.</p><button class="dash-btn" id="goToAdminBtn">Open Admin Panel</button></div>`;
+        document.getElementById('goToAdminBtn')?.addEventListener('click', () => document.querySelector('.tab-btn[data-page="adminPanel"]').click());
+    }
+
+    // ----- RENDER FUNCTIONS -----
+    function renderFastSlowReport() {
+        const fast = [...inventoryData].sort((a,b)=>b.soldCount-a.soldCount).slice(0,2);
+        const slow = [...inventoryData].sort((a,b)=>a.soldCount-b.soldCount).slice(0,2);
+        const reportDiv = document.getElementById('fastSlowReport');
+        if(reportDiv) reportDiv.innerHTML = `<strong>🔥 Fast-moving:</strong> ${fast.map(f=>f.name).join(', ')}<br><strong>🐢 Slow-moving:</strong> ${slow.map(s=>s.name).join(', ')}`;
+    }
+
+    function renderFullAdminControls() {
+        updateSystemOverviewAndLogs();
+        
+        document.getElementById('userListContainer').innerHTML = `<table><thead><tr><th>Username</th><th>Role</th><th>Actions</th></tr></thead><tbody>${usersData.map(u=>`<tr><td>${u.username}</td><td>${u.role}</td><td><button class="btn-sm" onclick="editUser(${u.id})">Edit</button><button class="btn-sm danger-btn" onclick="deleteUserAcc(${u.id})">Delete</button></td></tr>`).join('')}</tbody></table>`;
+        
+        document.getElementById('roleAssignmentArea').innerHTML = `<select id="roleUserId">${usersData.map(u=>`<option value="${u.id}">${u.username}</option>`)}</select><select id="newRoleSel"><option value="Admin">Admin</option><option value="Branch Manager">Manager</option><option value="Sales Staff">Sales</option><option value="Inventory Clerk">Inventory</option></select><button class="dash-btn" id="assignRoleExec">Assign Role</button>`;
+        
+        document.getElementById('assignRoleExec')?.addEventListener('click', () => { 
+            let uid = parseInt(document.getElementById('roleUserId').value); 
+            let newRole = document.getElementById('newRoleSel').value; 
+            let user = usersData.find(u=>u.id===uid); 
+            if(user) { 
+                user.role = newRole;
+                fetch('update_user.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `id=${encodeURIComponent(uid)}&role=${encodeURIComponent(newRole)}`
+                }).catch(error => console.error('User update error:', error));
+                addLogDB(`Assigned ${newRole} to ${user.username}`, currentUser.username); 
+                renderFullAdminControls(); 
+                showToast(`Role updated for ${user.username}`, 'success');
+            } 
+        });
+        
+        document.getElementById('saveSettingsBtn')?.addEventListener('click', () => { 
+            systemSettings.companyName = document.getElementById('sysCompany').value; 
+            systemSettings.taxRate = parseInt(document.getElementById('sysTax').value); 
+            addLogDB("System settings updated", currentUser.username); 
+            showToast('Settings saved successfully', 'success');
+        });
+        
+        document.getElementById('fullSalesReportBtn')?.addEventListener('click', () => document.getElementById('reportPreviewAdmin').innerHTML = `<pre>Total Revenue: KES ${getTodayRevenue()}\nTransactions: ${salesData.length}</pre>`);
+        document.getElementById('fullInventoryReportBtn')?.addEventListener('click', () => document.getElementById('reportPreviewAdmin').innerHTML = `<pre>Total Value: KES ${inventoryData.reduce((s,i)=>s+(i.price*i.stock),0)}</pre>`);
+        document.getElementById('fullEmployeeReportBtn')?.addEventListener('click', () => document.getElementById('reportPreviewAdmin').innerHTML = `<pre>${activityLogs.slice(0,15).map(l=>`${l.time}: ${l.user} - ${l.action}`).join('\n')}</pre>`);
+        
+        document.getElementById('activityLogViewer').innerHTML = activityLogs.map(l=>`<div>🕒 ${l.time} | ${l.user}: ${l.action}</div>`).join('') || "No logs";
+        
+        document.getElementById('clearActivitiesBtn')?.addEventListener('click', () => { 
+            activityLogs.length = 0;
+            fetch('clear_logs.php', {
+                method: 'POST'
+            }).catch(error => console.error('Clear logs error:', error));
+            renderFullAdminControls(); 
+            addLogDB("Cleared logs", currentUser.username); 
+            showToast('Logs cleared', 'info');
+        });
+        
+        document.getElementById('pendingAdjustmentsList').innerHTML = pendingAdjustments.map(adj=>`<div><input type="checkbox" class="adjCheck" value="${adj.id}"> ${adj.item} - Request: ${adj.requestedStock} (${adj.reason})</div>`).join('');
+        
+        document.getElementById('approveAdjustmentsBtn')?.addEventListener('click', () => { 
+            document.querySelectorAll('.adjCheck:checked').forEach(c => { 
+                let id = parseInt(c.value); 
+                pendingAdjustments = pendingAdjustments.filter(a=>a.id!==id); 
+            }); 
+            addLogDB("Approved adjustments", currentUser.username); 
+            renderFullAdminControls(); 
+            showToast('Adjustments approved', 'success');
+        });
+        
+        document.getElementById('createBackupBtn')?.addEventListener('click', () => { 
+            backupSnapshot = { usersData, inventoryData, suppliersData, salesData }; 
+            document.getElementById('backupStatus').innerHTML = "✅ Backup created " + new Date().toLocaleTimeString(); 
+            addLogDB("Backup created", currentUser.username); 
+            showToast('Backup created successfully', 'success');
+        });
+        
+        document.getElementById('restoreBackupBtn')?.addEventListener('click', () => { 
+            if(backupSnapshot) { 
+                usersData = backupSnapshot.usersData; 
+                inventoryData = backupSnapshot.inventoryData; 
+                suppliersData = backupSnapshot.suppliersData; 
+                salesData = backupSnapshot.salesData; 
+                renderFullAdminControls(); 
+                refreshInventoryTable(); 
+                refreshSalesList(); 
+                showToast('Backup restored successfully', 'success');
+            } else showToast('No backup found', 'error'); 
+        });
+        
+        renderSupplierTableAdmin();
+        
+        document.getElementById('addSupplierBtn')?.addEventListener('click', () => { 
+            let name = prompt("Name:"); 
+            let contact = prompt("Contact:"); 
+            if(name) { 
+                suppliersData.push({ id: Date.now(), name, contact, email: prompt("Email:")||"" });
+                fetch('add_supplier.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `name=${encodeURIComponent(name)}&contact=${encodeURIComponent(contact)}`
+                }).catch(error => console.error('Add supplier error:', error));
+                addLogDB(`Added supplier ${name}`, currentUser.username); 
+                renderFullAdminControls(); 
+                showToast(`Supplier ${name} added`, 'success');
+            } 
+        });
+    }
+
+    function renderSupplierTableAdmin() { 
+        document.getElementById('supplierListContainer').innerHTML = `<table><thead><tr><th>Name</th><th>Contact</th><th>Actions</th></tr></thead><tbody>${suppliersData.map(s=>`<tr><td>${s.name}</td><td>${s.contact}</td><td><button class="btn-sm" onclick="editSupplier(${s.id})">Edit</button><button class="btn-sm danger-btn" onclick="deleteSupplier(${s.id})">Remove</button></td></tr>`).join('')}</tbody></table>`; 
+    }
+
+    // ----- GLOBAL FUNCTIONS FOR ONCLICK -----
+    window.editSupplier = (id) => { 
+        let sup = suppliersData.find(s=>s.id===id); 
+        if(sup) { 
+            sup.name = prompt("Name:", sup.name); 
+            sup.contact = prompt("Contact:", sup.contact); 
+            addLogDB(`Edited supplier ${sup.name}`, currentUser?.username); 
+            renderFullAdminControls(); 
+            showToast(`Supplier ${sup.name} updated`, 'success');
+        } 
+    };
+    
+    window.deleteSupplier = (id) => { 
+        if(confirm('Are you sure you want to delete this supplier?')) {
+            suppliersData = suppliersData.filter(s=>s.id!==id); 
+            addLogDB(`Deleted supplier`, currentUser?.username); 
+            renderFullAdminControls(); 
+            showToast('Supplier deleted', 'info');
+        }
+    };
+    
+    window.editUser = (id) => { 
+        let user = usersData.find(u=>u.id===id); 
+        if(user) { 
+            user.username = prompt("Username:", user.username); 
+            user.name = prompt("Full name:", user.name); 
+            addLogDB(`Edited user ${user.username}`, currentUser?.username); 
+            renderFullAdminControls(); 
+            showToast(`User ${user.username} updated`, 'success');
+        } 
+    };
+    
+    window.deleteUserAcc = (id) => { 
+        if(id === currentUser?.id) { 
+            showToast('Cannot delete your own account', 'error'); 
+            return; 
+        } 
+        if(confirm('Are you sure you want to delete this user?')) {
+            usersData = usersData.filter(u=>u.id!==id); 
+            addLogDB(`Deleted user`, currentUser?.username); 
+            renderFullAdminControls(); 
+            showToast('User deleted', 'info');
+        }
+    };
+
+    // ----- SHELF OCCUPANCY CHECK -----
+    function isLocationOccupied(location, excludeSku) {
+        if (!location || location.trim() === '') return false;
+        const normalizedLocation = location.trim().toLowerCase();
+        return inventoryData.some(item => 
+            item.location && 
+            item.location.trim().toLowerCase() === normalizedLocation && 
+            item.sku !== excludeSku
+        );
+    }
+
+    function showShelfOccupiedNotification(location, itemName) {
+        const notificationArea = document.getElementById('shelfNotificationArea');
+        if (notificationArea) {
+            notificationArea.innerHTML = `
+                <div class="shelf-occupied">
+                    ⚠️ Shelf "${location}" is already occupied by another item! Location update cancelled.
+                </div>
+            `;
+            setTimeout(() => {
+                if (notificationArea) {
+                    notificationArea.innerHTML = '';
+                }
+            }, 5000);
+        }
+        showToast(`⚠️ Shelf "${location}" is occupied!`, 'error');
+    }
+
+    // ----- INVENTORY TABLE FUNCTIONS (with filter & shelf check) -----
+    function refreshInventoryTable() {
+        const nameFilter = invFilterName ? invFilterName.value.toLowerCase().trim() : '';
+        const priceMin = invFilterPriceMin ? parseFloat(invFilterPriceMin.value) : null;
+        const priceMax = invFilterPriceMax ? parseFloat(invFilterPriceMax.value) : null;
+
+        let filtered = inventoryData.filter(item => {
+            let match = true;
+            if (nameFilter && !item.name.toLowerCase().includes(nameFilter) && !item.sku.toLowerCase().includes(nameFilter)) {
+                match = false;
+            }
+            if (priceMin !== null && !isNaN(priceMin) && item.price < priceMin) {
+                match = false;
+            }
+            if (priceMax !== null && !isNaN(priceMax) && item.price > priceMax) {
+                match = false;
+            }
+            return match;
+        });
+
+        const tbody = document.getElementById('invTableBody');
+        if (tbody) {
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:#94a3b8;">No items match your filter</td></tr>`;
+            } else {
+                tbody.innerHTML = filtered.map(i => `<tr><td>${i.sku}</td><td>${i.name}</td><td><input type="number" id="stock-${i.sku}" value="${i.stock}" style="width:70px;"> <button onclick="updateStock('${i.sku}')" class="btn-sm">Save</button></td><td><input type="text" id="loc-${i.sku}" value="${i.location}" placeholder="Enter shelf location"> <button onclick="updateLocWithCheck('${i.sku}')" class="btn-sm">Set</button></td><td>KES ${i.price}</td><td>${i.compatibility}</td></tr>`).join('');
+            }
+        }
+    }
+    
+    window.updateStock = (sku) => { 
+        let ns = parseInt(document.getElementById(`stock-${sku}`).value); 
+        let item = inventoryData.find(i=>i.sku===sku); 
+        if(item) { 
+            item.stock = ns;
+            fetch('update_inventory.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `sku=${encodeURIComponent(sku)}&stock=${encodeURIComponent(ns)}`
+            }).catch(error => console.error('Stock update error:', error));
+            addLogDB(`Updated ${item.name} stock to ${ns}`, currentUser?.username); 
+            refreshInventoryTable(); 
+            renderStockReport(); 
+            renderFastSlowReport(); 
+            if(currentUser?.role === 'Admin') updateSystemOverviewAndLogs(); 
+            showToast(`Stock updated for ${item.name}`, 'success');
+        } 
+    };
+    
+    window.updateLocWithCheck = (sku) => { 
+        const locInput = document.getElementById(`loc-${sku}`);
+        if (!locInput) return;
+        
+        let newLocation = locInput.value.trim();
+        let item = inventoryData.find(i=>i.sku===sku); 
+        
+        if(!item) {
+            showToast('Item not found', 'error');
+            return;
+        }
+        
+        if (newLocation === '') {
+            item.location = '';
+            fetch('update_inventory.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `sku=${encodeURIComponent(sku)}&location=`
+            }).catch(error => console.error('Location update error:', error));
+            refreshInventoryTable();
+            showToast(`Location cleared for ${item.name}`, 'info');
+            return;
+        }
+        
+        if (isLocationOccupied(newLocation, sku)) {
+            showShelfOccupiedNotification(newLocation, item.name);
+            locInput.value = item.location || '';
+            return;
+        }
+        
+        item.location = newLocation;
+        fetch('update_inventory.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `sku=${encodeURIComponent(sku)}&location=${encodeURIComponent(newLocation)}`
+        }).catch(error => console.error('Location update error:', error));
+        refreshInventoryTable();
+        showToast(`Location updated for ${item.name} to "${newLocation}"`, 'success');
+        addLogDB(`Updated ${item.name} location to ${newLocation}`, currentUser?.username);
+        
+        const notificationArea = document.getElementById('shelfNotificationArea');
+        if (notificationArea) {
+            notificationArea.innerHTML = '';
+        }
+    };
+    
+    function refreshSalesList() { 
+        const tbody = document.getElementById('salesListBody'); 
+        if(tbody) tbody.innerHTML = salesData.map(s => `<tr><td>${s.time}</td><td>${s.item}</td><td>KES ${s.total}</td></tr>`).join(''); 
+    }
+    
+    // ----- STOCK REPORT WITH SEE MORE -----
+    function renderStockReport() {
+        const listContainer = document.getElementById('stockReportList');
+        if (!listContainer) return;
+
+        const items = inventoryData.map(i => ({
+            name: i.name,
+            stock: i.stock,
+            reorderLevel: i.reorderLevel || 5,
+            isReorder: i.stock <= (i.reorderLevel || 5)
+        }));
+
+        const totalItems = items.length;
+        const showCount = stockReportShowAll ? totalItems : Math.min(10, totalItems);
+        const visibleItems = items.slice(0, showCount);
+
+        let html = '<ul>';
+        visibleItems.forEach(item => {
+            const badgeClass = item.isReorder ? 'reorder' : 'ok';
+            const badgeText = item.isReorder ? '🔴 Reorder' : '✅ OK';
+            html += `<li>
+                <span>${item.name}</span>
+                <span class="stock-badge ${badgeClass}">${item.stock} units ${badgeText}</span>
+            </li>`;
+        });
+        html += '</ul>';
+
+        listContainer.innerHTML = html;
+
+        const seeMoreBtn = document.getElementById('stockReportSeeMore');
+        if (seeMoreBtn) {
+            if (totalItems <= 10) {
+                seeMoreBtn.style.display = 'none';
+            } else {
+                seeMoreBtn.style.display = 'block';
+                seeMoreBtn.textContent = stockReportShowAll ? '⬆ Show Less' : `👇 See More (${totalItems - 10} more)`;
+                seeMoreBtn.className = `see-more-btn${stockReportShowAll ? ' showing-all' : ''}`;
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const seeMoreBtn = document.getElementById('stockReportSeeMore');
+        if (seeMoreBtn) {
+            seeMoreBtn.addEventListener('click', function() {
+                stockReportShowAll = !stockReportShowAll;
+                renderStockReport();
+                if (stockReportShowAll) {
+                    showToast('Showing all items', 'info');
+                } else {
+                    showToast('Showing first 10 items', 'info');
+                }
+            });
+        }
+    });
+    
+    function renderTopParts() { 
+        const top = [...inventoryData].sort((a,b)=>b.soldCount-a.soldCount).slice(0,3); 
+        const topDiv = document.getElementById('topParts');
+        if(topDiv) topDiv.innerHTML = `<ul>${top.map(i=>`<li>🔥 ${i.name} - Sold: ${i.soldCount}</li>`).join('')}</ul>`; 
+    }
+
+    // ----- SALES CART FUNCTIONS -----
+    document.getElementById('saleSkuSearch')?.addEventListener('input', function(e) { 
+        let q = e.target.value.toLowerCase(); 
+        let res = inventoryData.filter(i=>i.name.toLowerCase().includes(q)||i.sku.toLowerCase().includes(q)); 
+        document.getElementById('searchResults').innerHTML = res.map(i=>`<div>${i.name} | Stock:${i.stock} | KES ${i.price} <button onclick="addToCart('${i.sku}')" class="btn-sm">Add</button></div>`).join(''); 
+    });
+    
+    window.addToCart = (sku) => { 
+        let item = inventoryData.find(i=>i.sku===sku); 
+        if(item && item.stock>0) { 
+            cart.push({...item}); 
+            renderCart(); 
+        } else showToast('Out of stock', 'error'); 
+    };
+    
+    function renderCart() { 
+        const cartDiv = document.getElementById('cartItems');
+        if(cartDiv) cartDiv.innerHTML = `<h4>🛒 Cart</h4>${cart.map((c,i)=>`<div>${c.name} x1 = KES ${c.price} <button onclick="removeCartItem(${i})">❌</button></div>`).join('')}<p>Total: KES ${cart.reduce((s,c)=>s+c.price,0)}</p>`; 
+    }
+    
+    window.removeCartItem = (i) => { 
+        cart.splice(i,1); 
+        renderCart(); 
+    };
+    
+    document.getElementById('completeSaleBtn')?.addEventListener('click', () => { 
+        if(cart.length===0) { 
+            showToast('Cart is empty', 'error');
+            return; 
+        }
+        
+        const total = cart.reduce((s,c)=>s+c.price,0); 
+        for(let item of cart) { 
+            let inv = inventoryData.find(i=>i.sku===item.sku); 
+            if(inv) { 
+                inv.stock--; 
+                inv.soldCount++; 
+            } 
+        } 
+        
+        const saleEntry = {
+            id: Date.now(),
+            time: new Date().toLocaleTimeString(),
+            item: cart[0].name + (cart.length>1?` +${cart.length-1}`:''),
+            total: total,
+            staff: currentUser?.name || 'Unknown'
+        };
+        
+        salesData.unshift(saleEntry);
+        
+        fetch('add_sale.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `item=${encodeURIComponent(saleEntry.item)}&total=${encodeURIComponent(total)}&staff=${encodeURIComponent(saleEntry.staff)}`
+        }).catch(error => console.error('Sale save error:', error));
+        
+        addLogDB(`Sale KES ${total}`, currentUser?.username); 
+        refreshInventoryTable(); 
+        refreshSalesList(); 
+        renderStockReport(); 
+        renderFastSlowReport(); 
+        cart = []; 
+        renderCart(); 
+        showToast(`✅ Invoice generated. Total: KES ${total}`, 'success');
+        if(currentUser?.role === 'Admin') updateSystemOverviewAndLogs(); 
+    });
+
+    // ----- TAB SWITCHING -----
+    const tabs = document.querySelectorAll('.tab-btn');
+    const sections = { 
+        dashboard: document.getElementById('dashboardPage'), 
+        inventory: document.getElementById('inventoryPage'), 
+        sales: document.getElementById('salesPage'), 
+        reports: document.getElementById('reportsPage'), 
+        adminPanel: document.getElementById('adminPanelPage') 
+    };
+    
+    tabs.forEach(btn => { 
+        btn.addEventListener('click', () => { 
+            const id = btn.dataset.page; 
+            Object.keys(sections).forEach(s => sections[s].classList.remove('active-page')); 
+            if(sections[id]) sections[id].classList.add('active-page'); 
+            tabs.forEach(b=>b.classList.remove('active')); 
+            btn.classList.add('active'); 
+            if(id==='adminPanel' && currentUser?.role==='Admin') renderFullAdminControls(); 
+            if(id==='inventory') refreshInventoryTable(); 
+            if(id==='reports') { 
+                renderStockReport(); 
+                renderTopParts(); 
+                renderFastSlowReport(); 
+            } 
+            if(id==='sales' && currentUser?.role === 'Sales Staff') {
+                renderLocationMap('quickLocationMap');
+            }
+        }); 
+    });
+
+    // ----- ROLE SELECTION -----
+    const roleBtns = document.querySelectorAll('.role-btn');
+    roleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            roleBtns.forEach(b => b.classList.remove('selected'));
+            btn.classList.add('selected');
+            selectedRoleForLogin = btn.getAttribute('data-role');
+            loginUsername.value = '';
+            loginPassword.value = '';
+            loginUsername.placeholder = `Enter ${selectedRoleForLogin} username`;
+            loginPassword.placeholder = `Enter ${selectedRoleForLogin} password`;
+            loginErrorMsg.innerHTML = '';
+        });
+    });
+
+    // ----- LOGOUT -----
+    function logout() {
+        if(confirm('Are you sure you want to logout?')) {
+            sessionStorage.removeItem('currentUser');
+            currentUser = null;
+            appContainer.classList.remove('active');
+            homepageDiv.style.display = 'flex';
+            loginOverlay.style.display = 'none';
+            loginUsername.value = '';
+            loginPassword.value = '';
+            loginErrorMsg.innerHTML = '';
+            document.getElementById('roleDashboardContent').innerHTML = '';
+            showToast('Logged out successfully', 'info');
+        }
+    }
+
+    // ----- EVENT LISTENERS -----
+    doLoginBtn.addEventListener('click', performLogin);
+    logoutBtn.addEventListener('click', logout);
+    
+    showLoginBtn.addEventListener('click', () => { 
+        loginOverlay.style.display = 'flex'; 
+        loginErrorMsg.innerHTML = ''; 
+        loginUsername.value = '';
+        loginPassword.value = '';
+    });
+    
+    closeLoginBtn.addEventListener('click', () => { 
+        loginOverlay.style.display = 'none';
+        loginUsername.value = '';
+        loginPassword.value = '';
+        loginErrorMsg.innerHTML = ''; 
+    });
+    
+    loginPassword.addEventListener('keypress', (e) => { 
+        if(e.key === 'Enter') performLogin(); 
+    });
+    
+    loginOverlay.addEventListener('click', (e) => {
+        if (e.target === loginOverlay) {
+            loginOverlay.style.display = 'none';
+            loginUsername.value = '';
+            loginPassword.value = '';
+            loginErrorMsg.innerHTML = '';
+        }
+    });
+
+    // Filter apply/reset
+    if (invFilterApplyBtn) {
+        invFilterApplyBtn.addEventListener('click', refreshInventoryTable);
+    }
+    if (invFilterResetBtn) {
+        invFilterResetBtn.addEventListener('click', () => {
+            if (invFilterName) invFilterName.value = '';
+            if (invFilterPriceMin) invFilterPriceMin.value = '';
+            if (invFilterPriceMax) invFilterPriceMax.value = '';
+            refreshInventoryTable();
+            showToast('Filters reset', 'info');
+        });
+    }
+    [invFilterName, invFilterPriceMin, invFilterPriceMax].forEach(el => {
+        if (el) {
+            el.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') refreshInventoryTable();
+            });
+        }
+    });
+
+    // ----- CHECK SAVED SESSION -----
+    const saved = sessionStorage.getItem('currentUser');
+    if (saved) {
+        try {
+            currentUser = JSON.parse(saved);
+            homepageDiv.style.display = 'none';
+            appContainer.classList.add('active');
+            sessionUserDisplay.textContent = currentUser.name || currentUser.username;
+            roleBadge.textContent = currentUser.role;
+            
+            loadAllData().then(() => {
+                document.getElementById('roleDashboardContent').innerHTML = '';
+                renderRoleInterface();
+                
+                if (currentUser.role === 'Admin') {
+                    document.getElementById('adminTabBtn').style.display = 'inline-block';
+                    renderFullAdminControls();
+                } else {
+                    document.getElementById('adminTabBtn').style.display = 'none';
+                }
+            });
+        } catch (e) {
+            console.error('Session restore error:', e);
+            sessionStorage.removeItem('currentUser');
+        }
+    }
+
+    // ---- Logo click: Navigate to Dashboard ----
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoLink = document.getElementById('logoDashboardLink');
+        if (logoLink) {
+            logoLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                const dashboardTab = document.querySelector('.tab-btn[data-page="dashboard"]');
+                if (dashboardTab) {
+                    dashboardTab.click();
+                } else {
+                    const dashboardPage = document.getElementById('dashboardPage');
+                    if (dashboardPage) {
+                        document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-page'));
+                        dashboardPage.classList.add('active-page');
+                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                        if (dashboardTab) dashboardTab.classList.add('active');
+                    }
+                }
+                showToast('📊 Dashboard', 'info');
+            });
+        }
+    });
+
+    console.log('🚗 Kamau Auto Spares System loaded successfully!');
+    console.log('📌 Using PHP backend with MySQL database');
+    console.log('👤 Current user:', currentUser ? currentUser.username : 'Not logged in');
+</script>
+</body>
+</html>
